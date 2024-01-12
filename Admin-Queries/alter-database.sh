@@ -11,3 +11,4 @@ ALTER DATABASE "StackOverflow" RENAME TO stackoverflow;
 # change table schema
 alter table users set schema dbo;
 
+#
