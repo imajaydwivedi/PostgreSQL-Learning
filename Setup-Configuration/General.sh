@@ -7,6 +7,12 @@ export PGPASSWORD='<password>'
 =# show config_file;
 
 
+# Change postgres role password when forgot it
+  # https://askubuntu.com/a/594002
+sudo -u postgres psql
+ALTER USER postgres PASSWORD 'newpassword';
+
+
 # connect to PostgreSQL server: FATAL: no pg_hba.conf entry for host
   # https://dba.stackexchange.com/a/84002
 
@@ -19,3 +25,9 @@ Add the following line as the first line of pg_hba.conf. It allows access to all
 host  all  all 0.0.0.0/0 scram-sha-256
 Restart Postgresql after adding this with service postgresql restart or the equivalent command for your setup. For brew, brew services restart postgresql
 
+
+# Getting error: Peer authentication failed for user "postgres", when trying to get pgsql working with rails
+  # https://stackoverflow.com/a/18664239/4449743
+# Change following line to 
+#local   all             postgres                                peer
+local   all             postgres                                md5
