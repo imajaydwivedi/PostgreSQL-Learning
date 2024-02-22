@@ -40,3 +40,22 @@ Restart Postgresql after adding this with service postgresql restart or the equi
 export PGPASSWORD='<password>'
 > psql -h localhost -U postgres
 
+# Upgrade postgres repository configuration for Ubuntu to latest
+https://www.postgresql.org/download/linux/ubuntu/
+(base) saanvi@ryzen9:~$ sudo apt install postgresql-client-16
+
+# Get Postgres tools path on Ubuntu
+dpkg -l | grep postgres
+
+# Below is path of pg_dump on Ubuntu
+/usr/lib/postgresql/16/bin/pg_dump
+
+# Find/Save current pg_dump settings/links
+(base) saanvi@ryzen9:~/Github/PostgreSQL-Learning$ ls -l /usr/bin/ | grep pg_dump
+lrwxrwxrwx 1 root root           37 Feb 10  2022 pg_dump -> ../share/postgresql-common/pg_wrapper
+lrwxrwxrwx 1 root root           37 Feb 10  2022 pg_dumpall -> ../share/postgresql-common/pg_wrapper
+
+# Overwrite pg_dump link to reflect latest pg_dump version
+sudo ln -sfn /usr/lib/postgresql/16/bin/pg_dump /usr/bin/pg_dump
+
+
