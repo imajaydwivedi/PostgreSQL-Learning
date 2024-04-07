@@ -54,8 +54,9 @@ host  all  all 0.0.0.0/0 scram-sha-256
 
 Also, upto following line to next line -
 
-local   all             postgres                                peer
-local   all             postgres                                md5
+host    all             saanvi             0.0.0.0/0            scram-sha-256
+host    all             ajay               0.0.0.0/0            scram-sha-256
+host    all             postgres           192.168.0.0/16       scram-sha-256
 
 Restart Postgresql after adding this with service postgresql restart or the equivalent command for your setup. For brew, brew services restart postgresql
 
@@ -90,7 +91,7 @@ Type "help" for help.
 
 postgres=# show data_directory;
        data_directory        
------------------------------
+------------------------------
  /var/lib/postgresql/14/main
 (1 row)
 

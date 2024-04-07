@@ -16,14 +16,13 @@ saanvi@ryzen9:~/Github/PostgreSQL-Learning$ mkdir /vm-storage-01/pg_data
 saanvi@ryzen9:~/Github/PostgreSQL-Learning$ sudo chown postgres:postgres /vm-storage-01/pg_data
 
 postgres=# create tablespace vm_storage_01 owner postgres location '/vm-storage-01/pg_data';
-postgres=# create database stackoverflow with owner=postgres TABLESPACE = mytspace;
-s
-
+postgres=# create database stackoverflow with owner=postgres TABLESPACE=vm_storage_01;
 
 postgres=# 
 
-postgres=# set default_tablespace = vm_storage_01;
+postgres=# set default_tablespace=vm_storage_01;
 SET
 postgres=# 
 
-pg_restore -h localhost -d stackoverflow /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow.tar
+/PostgreSQL/14/bin> pg_restore -h localhost -d stackoverflow /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow.tar -v
+
