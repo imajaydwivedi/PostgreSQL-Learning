@@ -50,13 +50,15 @@ listen_addresses = '*'
 
 # Add the following line as the first line of pg_hba.conf. It allows access to all databases for all users with an encrypted password:
 
-host  all  all 0.0.0.0/0 scram-sha-256
+# "local" is for Unix domain socket connections only. ajay is non-linux login whereas saanvi is linux login
+local   all             ajay                                    scram-sha-256
+local   all             saanvi                                  peer
+local   all             all                                     peer
 
-Also, upto following line to next line -
-
-host    all             saanvi             0.0.0.0/0            scram-sha-256
-host    all             ajay               0.0.0.0/0            scram-sha-256
-host    all             postgres           192.168.0.0/16       scram-sha-256
+# IPv4 
+host    all             saanvi          0.0.0.0/0               scram-sha-256
+host    all             ajay            0.0.0.0/0               scram-sha-256
+host    all             postgres        192.168.0.0/16          scram-sha-256
 
 Restart Postgresql after adding this with service postgresql restart or the equivalent command for your setup. For brew, brew services restart postgresql
 
