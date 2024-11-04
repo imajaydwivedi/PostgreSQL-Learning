@@ -12,5 +12,7 @@ postgres=# set default_tablespace=vm_storage_01;
 SET
 postgres=# 
 
-/PostgreSQL/14/bin> pg_restore -h localhost -d stackoverflow /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow.tar -v
+/PostgreSQL/14/bin> pg_restore -h localhost -d stackoverflow /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow.tar
+
+pg_restore -h localhost -d stackoverflow -U postgres -v 'E:\Share\stackoverflow-postgres-2010\dump-stackoverflow2010.sql'
 

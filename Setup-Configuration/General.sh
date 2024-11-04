@@ -106,3 +106,7 @@ postgres=# select setting from pg_settings where name = 'data_directory';
 postgres=# 
 
 
+pg_dump -U postgres -d dvdrental -F c -f "C:\temp\dvdrental.backup"
+
+pg_restore -h localhost -p 5432 -U postgres -d dvdrental -v "C:\temp\dvdrental.backup"
+
