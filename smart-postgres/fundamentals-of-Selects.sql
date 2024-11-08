@@ -44,7 +44,7 @@ order by reputation desc
 limit 100;
 
 -- https://explain.dalibo.com/
-   -- ctid => internal column. (page, row)
+   -- ctid => internal column. Tuple Identifier. (page, row)
 select ctid, xmin, xmax, *
 from public.users
 where location = 'Las Vegas, NV, USA'
