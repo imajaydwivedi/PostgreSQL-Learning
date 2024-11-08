@@ -9,7 +9,7 @@
  * https://smartpostgres.com/go/getstack
  */
 
-
+set search_path to public;
 
 /* Recreate our 5M row users table with indexes,
  * but this time leave autovacuum on.
