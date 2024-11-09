@@ -1,8 +1,8 @@
-use StackOverflow;
-select top 100 * from dbo.Users as u where Id in (1,4449743,26837,545629,61305,440595,4197,17174);
+set search_path to public;
 
-SELECT TOP (1) Id FROM dbo.Users --where Id in (1,4449743,26837,545629,61305,440595,4197,17174) 
-ORDER BY NEWID();
+select * from public.users as u where id in (1,4449743,26837,545629,61305,440595,4197,17174) limit 100;
+
+--SELECT TOP (1) Id FROM dbo.Users --where Id in (1,4449743,26837,545629,61305,440595,4197,17174) ORDER BY NEWID();
 
 /*
 select top 100 * from dbo.Users as u
