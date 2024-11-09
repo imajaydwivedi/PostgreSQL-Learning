@@ -16,3 +16,10 @@ postgres=#
 
 pg_restore -h localhost -d stackoverflow -U postgres -v 'E:\Share\stackoverflow-postgres-2010\dump-stackoverflow2010.sql'
 
+# restore postgres_air from pg_dump backup
+pg_restore -h localhost -d postgres_air -U postgres /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/postgres_air/postgres_air_2023.backup
+pg_restore -h officelaptop -d postgres_air -U postgres /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/postgres_air/postgres_air_2023.backup
+
+# method 02: simply execute following query in Query Window
+/stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/postgres_air/postgres_air_2023.sql
+
