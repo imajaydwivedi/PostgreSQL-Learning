@@ -1,6 +1,7 @@
 set search_path to postgres_air;
 
-EXPLAIN (ANALYZE, VERBOSE, COSTS, FORMAT JSON, BUFFERS)
+--EXPLAIN (ANALYZE, VERBOSE, COSTS, FORMAT JSON, BUFFERS)
+explain analyze
 SELECT f.flight_no,
        f.actual_departure,
        count(passenger_id) passengers
