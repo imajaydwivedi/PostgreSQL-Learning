@@ -8,3 +8,5 @@ CREATE INDEX flight_update_ts ON postgres_air.flight  (update_ts);
 CREATE INDEX booking_leg_booking_id ON postgres_air.booking_leg (booking_id);
 CREATE INDEX booking_leg_update_ts ON postgres_air.booking_leg (update_ts);
 CREATE INDEX account_last_name  ON account (last_name);
+
+--SELECT tablename, indexname, indexdef FROM pg_indexes WHERE schemaname = 'postgres_air' ORDER BY tablename, indexname;
