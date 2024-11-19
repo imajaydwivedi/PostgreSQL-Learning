@@ -1,6 +1,9 @@
 set
     search_path to postgres_air;
 
+/* Query 01: Query with conditions on two tables
+** Optimization making good choice to merge 2 flight_scheduled_departure filters 
+*/
 --explain ANALYZE
 EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)
 SELECT
@@ -53,4 +56,85 @@ Nested Loop  (cost=15.25..1034.63 rows=1 width=15) (actual time=0.013..0.015 row
         Heap Fetches: 0
 Planning Time: 1.780 ms
 Execution Time: 0.369 ms
+*/
+
+
+/* Query listing 5-11: short query with hard-to-optimize filtering 
+** This query looks for flights that were more than one hour delayed (of which there should not be many). 
+** For all of these delayed flights, the query selects boarding passes issued after the scheduled departure.
+**
+**
+*/
+explain ANALYZE
+--EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)
+SELECT bp.update_ts Boarding_pass_issued,
+       scheduled_departure,
+       actual_departure,
+       status
+FROM flight f
+JOIN booking_leg bl USING (flight_id)
+JOIN boarding_pass bp USING (booking_leg_id)
+WHERE bp.update_ts > scheduled_departure + interval '30 minutes'
+AND f.update_ts >=scheduled_departure -interval '1 hour';
+/*
+Gather  (cost=288845.90..1130658.34 rows=2810462 width=35) (actual time=2723.622..3513.826 rows=99 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  ->  Parallel Hash Join  (cost=287845.90..848612.14 rows=1171026 width=35) (actual time=2702.528..3257.865 rows=33 loops=3)
+        Hash Cond: (bp.booking_leg_id = bl.booking_leg_id)
+        Join Filter: (bp.update_ts > (f.scheduled_departure + '00:30:00'::interval))
+        Rows Removed by Join Filter: 2430401
+        ->  Parallel Seq Scan on boarding_pass bp  (cost=0.00..366200.33 rows=10539233 width=16) (actual time=0.039..677.406 rows=8431164 loops=3)
+        ->  Parallel Hash  (cost=239791.67..239791.67 rows=2485218 width=31) (actual time=1097.220..1097.222 rows=848757 loops=3)
+              Buckets: 131072  Batches: 64  Memory Usage: 3552kB
+              ->  Parallel Hash Join  (cost=14079.94..239791.67 rows=2485218 width=31) (actual time=194.027..966.345 rows=848757 loops=3)
+                    Hash Cond: (bl.flight_id = f.flight_id)
+                    ->  Parallel Seq Scan on booking_leg bl  (cost=0.00..206140.53 rows=7455652 width=8) (actual time=0.018..365.407 rows=5964522 loops=3)
+                    ->  Parallel Hash  (cost=12893.86..12893.86 rows=94886 width=31) (actual time=193.480..193.481 rows=28064 loops=3)
+                          Buckets: 262144  Batches: 1  Memory Usage: 7360kB
+                          ->  Parallel Seq Scan on flight f  (cost=0.00..12893.86 rows=94886 width=31) (actual time=172.571..188.941 rows=28064 loops=3)
+                                Filter: (update_ts >= (scheduled_departure - '01:00:00'::interval))
+                                Rows Removed by Filter: 199662
+Planning Time: 0.281 ms
+JIT:
+  Functions: 69
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 2.591 ms, Inlining 88.147 ms, Optimization 264.196 ms, Emission 165.361 ms, Total 520.295 ms
+Execution Time: 3514.653 ms
+*/
+
+
+
+/* Query listing 5-12: Query with added excessive selection criteria
+**
+**
+*/
+CREATE INDEX boarding_pass_update_ts ON postgres_air.boarding_pass  (update_ts);
+
+
+explain ANALYZE
+--EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)
+SELECT bp.update_ts Boarding_pass_issued,
+       scheduled_departure,
+       actual_departure,
+       status
+FROM flight f
+JOIN booking_leg bl USING (flight_id)
+JOIN boarding_pass bp USING (booking_leg_id)
+WHERE bp.update_ts  > scheduled_departure + interval '30 minutes'
+AND f.update_ts >=scheduled_departure -interval '1 hour'
+AND bp.update_ts >='2020-08-16' AND bp.update_ts< '2020-08-20'
+/*
+Nested Loop  (cost=1.30..17.38 rows=1 width=35) (actual time=0.004..0.004 rows=0 loops=1)
+  Join Filter: (bp.update_ts > (f.scheduled_departure + '00:30:00'::interval))
+  ->  Nested Loop  (cost=0.88..16.91 rows=1 width=12) (actual time=0.004..0.004 rows=0 loops=1)
+        ->  Index Scan using boarding_pass_update_ts on boarding_pass bp  (cost=0.44..8.46 rows=1 width=16) (actual time=0.003..0.004 rows=0 loops=1)
+              Index Cond: ((update_ts >= '2020-08-16 00:00:00+05:30'::timestamp with time zone) AND (update_ts < '2020-08-20 00:00:00+05:30'::timestamp with time zone))
+        ->  Index Scan using booking_leg_pkey on booking_leg bl  (cost=0.44..8.46 rows=1 width=8) (never executed)
+              Index Cond: (booking_leg_id = bp.booking_leg_id)
+  ->  Index Scan using flight_pkey on flight f  (cost=0.42..0.45 rows=1 width=31) (never executed)
+        Index Cond: (flight_id = bl.flight_id)
+        Filter: (update_ts >= (scheduled_departure - '01:00:00'::interval))
+Planning Time: 0.481 ms
+Execution Time: 0.021 ms
 */
