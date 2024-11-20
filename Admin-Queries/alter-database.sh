@@ -21,6 +21,8 @@ postgres=# create role rreddy with login password 'YourPasswordHere';
 postgres=# alter role rreddy with superuser;
 postgres=# GRANT ALL PRIVILEGES ON DATABASE stackoverflow TO rreddy;
 
+# Add entry in pg_hba.conf file also
+
 
 Connection command ->
 psql -h sqlmonitor.ajaydwivedi.com -p 25432 -U rreddy -d stackoverflow -W
