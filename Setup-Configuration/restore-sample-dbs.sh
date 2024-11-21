@@ -25,6 +25,23 @@ postgres=# create tablespace vm_storage_02 owner postgres location '/vm-storage-
 # create 2 stackoverflow dbs. [stackoverflow2010] - 6 gb size || [stackoverflow] - 117 gb size 
 postgres=# create database stackoverflow2010 with owner=postgres;
 postgres=# create database stackoverflow with owner=postgres TABLESPACE=vm_storage_01;
+postgres=# create database stackoverflow_large with owner=postgres TABLESPACE=vm_storage_02;
+
+# Check existing tablespaces
+postgres=# SELECT spcname AS tablespace_name, pg_tablespace_location(oid) AS location FROM pg_tablespace;
+
+# Check if databases are set to expected tablespaces
+postgres=# SELECT datname, pg_tablespace.spcname AS default_tablespace FROM pg_database LEFT JOIN pg_tablespace ON pg_database.dattablespace = pg_tablespace.oid;
+
+# Query to get table level tablespace configuration
+SELECT relname AS table_name, pg_tablespace.spcname AS tablespace
+FROM pg_class
+LEFT JOIN pg_tablespace ON pg_class.reltablespace = pg_tablespace.oid
+WHERE relname = 'your_table_name';
+
+
+# set tablespace explicitly if required
+postgres=# ALTER DATABASE my_database SET default_tablespace = vm_storage_01;
 
 
 postgres=# set default_tablespace=vm_storage_01;
@@ -32,7 +49,7 @@ SET
 postgres=# 
 
 # Sample restore commands
-/PostgreSQL/14/bin> pg_restore -h localhost -U postgres -d stackoverflow2010 /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow.tar
+/PostgreSQL/14/bin> pg_restore -h localhost -U postgres -d stackoverflow_large /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow.tar
 /PostgreSQL/14/bin> pg_restore -h localhost -U postgres -d stackoverflow -v 'E:\Share\stackoverflow-postgres-2010\dump-stackoverflow2010.sql'
 
 # Actual restore commands
