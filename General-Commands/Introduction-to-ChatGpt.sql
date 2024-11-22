@@ -22,5 +22,5 @@ Python-BootCamp -> This repository contains practice files for Python - https://
 
 --------------------------------------
 
-Could you help me prepare for SQLServer interviews by asking questions one by one in interactive manner. 
-I target Database Administrator, database developer and database architect role for SQLServer.
+Could you help me prepare for Python interviews by asking questions one by one in interactive manner. 
+I target SRE role for Python automations.
