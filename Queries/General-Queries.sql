@@ -66,6 +66,7 @@ ORDER BY pages DESC, schema_name, object_name
 
 -- Find Table/Index Usage
   -- https://github.com/SmartPostgres/Box-of-Tricks/blob/dev/checks/check_indexes.sql
+select * from check_indexes('public', NULL);
 select * from check_indexes('public','users');
 
 
