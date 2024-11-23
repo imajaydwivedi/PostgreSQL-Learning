@@ -24,6 +24,7 @@
 *.pyc
 *__pycache__*
 __pycache__/
+Untitled*.ipynb
 
 
 # Byte-compiled / optimized / DLL files
