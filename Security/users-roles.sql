@@ -115,3 +115,8 @@ psql -d postgres
 
 -- remote with password
 psql -h localhost -U ajay -d postgres --password
+
+-- peer authentication using another login
+    -- connect to local postgresql with peer authentication of postgres login
+sudo -u postgres psql
+
