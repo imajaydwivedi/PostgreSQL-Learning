@@ -12,7 +12,20 @@ sudo touch /home/ajay/.noxsession
 sudo chown ajay:ajay /home/ajay/.noxsession
 
 # Restrict GUI login in lightdm
-sudo nano /etc/lightdm/users.conf
+    # https://askubuntu.com/a/575390
+sudo nano /var/lib/AccountsService/users/ajay
 
-disallow-ajay=true
+SystemAccount=true
+
+sudo systemctl restart accounts-daemon.service
+
+
+# Configure LightDM to Enable NumLock
+sudo apt update
+sudo apt install numlockx
+sudo nano /etc/lightdm/lightdm.conf.d/50-numlock.conf
+
+[Seat:*]
+greeter-setup-script=/usr/bin/numlockx on
+
 
