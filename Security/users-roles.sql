@@ -86,6 +86,9 @@ local   all             ajay                       scram-sha-256
 host    all             ajay      0.0.0.0/0       scram-sha-256
 host    all             ajay      ::/0            scram-sha-256
 
+# Allow postgres on local network
+host    all             postgres      192.168.0.0/16    scram-sha-256
+
 
 /* Restart PG Service */
 systemctl status postgresql@16-main.service
