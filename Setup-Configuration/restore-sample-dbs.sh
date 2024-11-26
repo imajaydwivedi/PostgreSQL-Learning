@@ -22,6 +22,8 @@ saanvi@ryzen9:~/Github/PostgreSQL-Learning$ sudo chown postgres:postgres /vm-sto
 postgres=# create tablespace vm_storage_01 owner postgres location '/vm-storage-01/pg_data';
 postgres=# create tablespace vm_storage_02 owner postgres location '/vm-storage-02/pg_data';
 
+postgres=# create tablespace e_pg_data owner postgres location 'E:\\PG_Data\\\data';
+
 # create 2 stackoverflow dbs. [stackoverflow2010] - 6 gb size || [stackoverflow] - 117 gb size 
 postgres=# create database stackoverflow2010 with owner=postgres;
 postgres=# create database stackoverflow with owner=postgres TABLESPACE=vm_storage_01;
@@ -55,6 +57,10 @@ postgres=#
 # Actual restore commands
 /PostgreSQL/14/bin> pg_restore -h localhost -U postgres -d stackoverflow2010 -v '/stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow-postgres-2010-v0.1/dump-stackoverflow2010-202408101013.sql'
 /PostgreSQL/14/bin> pg_restore -h localhost -U postgres -d stackoverflow -v '/stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/stackoverflow-postgres-2024-v0.1/dump-stackoverflow-202408100709.sql'
+
+# Actual restore commands on Windows
+pg_restore -h localhost -U postgres -d stackoverflow2010 -v "S:\Backup\stackoverflow-postgres-2010-v0.1\dump-stackoverflow2010-202408101013.sql"
+pg_restore -h localhost -U postgres -d stackoverflow -v "S:\Backup\stackoverflow-postgres-2024-v0.1\dump-stackoverflow-202408100709.sql"
 
 
 # restore postgres_air from pg_dump backup
