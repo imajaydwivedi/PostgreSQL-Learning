@@ -61,7 +61,8 @@ Execution Time: 409.962 ms
 
 
 /* Example 02 */
-explain (analyze, verbose, buffers, costs)
+explain 
+(analyze, verbose, buffers, costs)
 SELECT * FROM flight WHERE flight_id IN
   (SELECT flight_id FROM booking_leg);
 

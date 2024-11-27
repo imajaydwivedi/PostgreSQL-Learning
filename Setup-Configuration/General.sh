@@ -45,7 +45,16 @@ ALTER USER postgres PASSWORD 'newpassword';
   # https://stackoverflow.com/a/18664239
 
 # Add or edit the following line in your postgresql.conf :
-listen_addresses = '*'
+  listen_addresses = '*'
+
+  # Settings related to Execution Plan - https://stackoverflow.com/a/45886412/4449743
+  session_preload_libraries = 'auto_explain'
+  shared_preload_libraries = 'auto_explain'	# (change requires restart)
+
+# Use following code to enable execution plan on database level
+  # https://github.com/cybertec-postgresql/pg_show_plans
+alter database postgres_air set auto_explain.log_min_duration=1000; -- 1 seconds or 1000 ms
+
 
 
 # Add the following line as the first line of pg_hba.conf. It allows access to all databases for all users with an encrypted password:

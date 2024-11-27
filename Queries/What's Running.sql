@@ -22,3 +22,4 @@ LEFT JOIN blocking_info ON a.pid = blocking_info.pid
 WHERE a.state != 'idle'
 AND query NOT ILIKE '%pg_stat_activity%' 
 ORDER BY a.query_start DESC;
+
