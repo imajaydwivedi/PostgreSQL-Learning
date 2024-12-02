@@ -21,7 +21,28 @@ optimizes an execution plan, which includes invocations of user-defined function
 ** When should functions be used?
 Functions should be used to optimize processes
 **
+** Functions and Type Dependencies
+Since SQL statements in the function body are not parsed during function creation, 
+there are no dependencies on tables, views or materialized views, or other functions 
+and stored procedures, which are used in the function body. For this reason, 
+functions need only be recreated when needed as the result of an actual change, 
+not simply due to a cascade drop.
 **
+Just as with materialized views, user-defined data types cannot be modified 
+without being dropped first. To drop a type, all other user-defined types that 
+include it as an element and all functions that depend
+**
+**
+** Functions features
+Parameterizing which is not available with Views
+No Explicit Dependency on Table and Views
+Ability to Execute Dynamic SQL
+**
+**
+** Functions and Security
+SECURITY DEFINER -> A function is executed with the permissions of the function creator.
+SECURITY INVOKER (Default)-> A function is executed with the permissions of the executor. 
+                This implicitly means, executor should have access to all the underlying objects used.
 */
 
 
@@ -226,4 +247,6 @@ END;
 $body$ language plpgsql;
 
 SELECT * FROM booking_leg_select (17564910);
+
+perform * from booking_leg_select (17564910);
 
