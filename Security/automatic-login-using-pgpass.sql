@@ -5,6 +5,7 @@ hostname:port:database:username:password
 # psql 'postgresql://username:password@host:port/database'
 # pg_restore --dbname='postgresql://username:password@host:port/database' [options] dumpfile
 
+
 -- Configure .pg_service.conf (Optional for Simplified Connection)
 nano ~/.pg_service.conf
     -------------------------------

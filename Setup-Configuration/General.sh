@@ -1,3 +1,13 @@
+# Set default editor
+(base) saanvi@ryzen9:PostgreSQL-Learning$ nano ~/.bashrc 
+
+export EDITOR=nano
+export VISUAL="code --wait"
+
+export PGDATABASE=postgres_air
+export PGSERVICEFILE=~/.pg_service.conf
+
+
 # Location of postgresql.conf and pg_hba.conf on an Ubuntu server
 # Where does PostgreSQL store configuration/conf files?
   # https://serverfault.com/questions/152942/location-of-postgresql-conf-and-pg-hba-conf-on-an-ubuntu-server
