@@ -34,4 +34,9 @@ pg_ctl: server is running (PID: 4922)
 /usr/lib/postgresql/16/bin/postgres "-D" "/var/lib/postgresql/16/main" "-c" "config_file=/etc/postgresql/16/main/postgresql.conf"
 
 
+# One line command to get postgres service status using pg_ctl
+(base) saanvi@ryzen9:~/GitHub/PostgreSQL-Learning$ sudo -u postgres bash -c "source ~/.bashrc && pg_ctl status"
+pg_ctl: server is running (PID: 505259)
+/usr/lib/postgresql/16/bin/postgres "-D" "/var/lib/postgresql/16/main" "-c" "config_file=/etc/postgresql/16/main/postgresql.conf"
+(base) saanvi@ryzen9:~/GitHub/PostgreSQL-Learning$ 
 

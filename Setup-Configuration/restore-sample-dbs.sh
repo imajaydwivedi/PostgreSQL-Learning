@@ -70,3 +70,6 @@ pg_restore -h officelaptop -d postgres_air -U postgres /stale-storage/Softwares/
 # method 02: simply execute following query in Query Window
 /stale-storage/Softwares/PostgreSQL/PostgreSQL-Sample-Dbs/postgres_air/postgres_air_2023.sql
 
+
+alter database forumdb refresh collation version;
+alter database dvdrental refresh collation version;
