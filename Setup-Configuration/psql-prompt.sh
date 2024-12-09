@@ -1,3 +1,6 @@
+$ sudo -i -u postgres
+$ sudo su - postgres
+
 # Update bash shell prompt for Postgres user on ubuntu
     # Add following lines in postgres user's ~/.bashrc file
     ---------------------------------------------------------
@@ -20,7 +23,7 @@
 # postgres user uses Login Shell.
     # So manually source ~/.bashrc in ~/.profile
     # Add the following to ~/.profile:
-    
+
     ---------------------------------------------------------
     # Source .bashrc if it exists
     if [ -f ~/.bashrc ]; then
