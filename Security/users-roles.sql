@@ -72,22 +72,24 @@ alter user postgres password '<Password>';
 
 /* Add entry for these users in pg_hba (/etc/postgres/16/main/pg_hba.conf) */
 # ************************** Custom Settings by DBA ****************************************
-# Allow roles to log in locally without a password
-    # local user on machine need peer authentication
-local   all             saanvi                        peer
-    # database only user need trust authentication
-local   all             ajay                       trust
 
+# "local" is for Unix domain socket connections only
+local   all     all                     peer
 
-# Allow roles to log in locally with a password
-local   all             ajay                       scram-sha-256
+# Allow localhost tcp connections for postgres with password 
+host    all             postgres    127.0.0.1/32    scram-sha-256
+host    all             postgres    ::1/128         scram-sha-256
 
-# Allow roles to log in remotely with a password (from any host)
-host    all             ajay      0.0.0.0/0       scram-sha-256
-host    all             ajay      ::/0            scram-sha-256
+# Allow local network tcp connections for postgres with password
+host    all             postgres    192.168.0.0/16    scram-sha-256
 
-# Allow postgres on local network
-host    all             postgres      192.168.0.0/16    scram-sha-256
+# Reject all not local tcp connections for postgres role
+host    all             postgres    0.0.0.0/0           reject
+host    all             postgres    ::/0                reject
+
+# Allow local network tcp connections using password for all roles
+host    all             all         0.0.0.0/0           scram-sha-256
+host    all             all         ::/0                scram-sha-256
 
 
 /* Restart PG Service */
