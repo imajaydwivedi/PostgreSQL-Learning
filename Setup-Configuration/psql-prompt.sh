@@ -1,4 +1,5 @@
 $ sudo -i -u postgres
+$ sudo -u postgres
 $ sudo su - postgres
 
 # Update bash shell prompt for Postgres user on ubuntu
