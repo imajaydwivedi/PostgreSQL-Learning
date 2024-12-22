@@ -7,6 +7,8 @@ export VISUAL="code --wait"
 export PGDATABASE=postgres_air
 export PGSERVICEFILE=~/.pg_service.conf
 
+# Find file named "pg_hba.conf"
+sudo find /etc -type f -name "pg_hba.conf"
 
 # Location of postgresql.conf and pg_hba.conf on an Ubuntu server
 # Where does PostgreSQL store configuration/conf files?

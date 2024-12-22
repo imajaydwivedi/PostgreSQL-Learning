@@ -1,0 +1,10 @@
+{
+    "notebook.pinnedNotebooks": [
+
+    ],
+    "workbench.editor.highlightModifiedTabs": true,
+    "workbench.editor.limit.value": 20,
+    "workbench.settings.editor": "json",
+    "workbench.editor.showTabs": "multiple",
+    "workbench.editor.pinnedTabsOnSeparateRow": true
+}

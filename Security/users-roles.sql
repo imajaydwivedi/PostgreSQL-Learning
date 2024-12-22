@@ -125,3 +125,16 @@ psql -h localhost -U ajay -d postgres --password
     -- connect to local postgresql with peer authentication of postgres login
 sudo -u postgres psql
 
+
+/*  Allow adwivedi to Impersonate postgres user without password
+    Allow saanvi to Impersonate adwivedi user without password
+*/
+sudo visudo
+
+    adwivedi ALL=(postgres) NOPASSWD:ALL
+    saanvi ALL=(adwivedi) NOPASSWD:ALL
+
+-- Verify the changes
+sudo -l -U adwivedi
+sudo -l -U saanvi
+
