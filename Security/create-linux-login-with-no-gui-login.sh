@@ -15,7 +15,10 @@ sudo chown ajay:ajay /home/ajay/.noxsession
     # https://askubuntu.com/a/575390
 sudo nano /var/lib/AccountsService/users/ajay
 
-SystemAccount=true
+    [User]
+    Session=
+    Icon=/home/ajay/.face
+    SystemAccount=true
 
 sudo systemctl restart accounts-daemon.service
 
