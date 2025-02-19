@@ -1,3 +1,15 @@
+# Set default editor
+(base) saanvi@ryzen9:PostgreSQL-Learning$ nano ~/.bashrc 
+
+export EDITOR=nano
+export VISUAL="code --wait"
+
+export PGDATABASE=postgres_air
+export PGSERVICEFILE=~/.pg_service.conf
+
+# Find file named "pg_hba.conf"
+sudo find /etc -type f -name "pg_hba.conf"
+
 # Location of postgresql.conf and pg_hba.conf on an Ubuntu server
 # Where does PostgreSQL store configuration/conf files?
   # https://serverfault.com/questions/152942/location-of-postgresql-conf-and-pg-hba-conf-on-an-ubuntu-server
@@ -45,7 +57,16 @@ ALTER USER postgres PASSWORD 'newpassword';
   # https://stackoverflow.com/a/18664239
 
 # Add or edit the following line in your postgresql.conf :
-listen_addresses = '*'
+  listen_addresses = '*'
+
+  # Settings related to Execution Plan - https://stackoverflow.com/a/45886412/4449743
+  session_preload_libraries = 'auto_explain'
+  shared_preload_libraries = 'auto_explain'	# (change requires restart)
+
+# Use following code to enable execution plan on database level
+  # https://github.com/cybertec-postgresql/pg_show_plans
+alter database postgres_air set auto_explain.log_min_duration=1000; -- 1 seconds or 1000 ms
+
 
 
 # Add the following line as the first line of pg_hba.conf. It allows access to all databases for all users with an encrypted password:

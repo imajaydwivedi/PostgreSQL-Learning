@@ -52,7 +52,6 @@ order by reputation desc
 limit 100;
 
 -- Check indexes
-select *
-from check_indexes('public','users')
+select * from check_indexes('public','users')
 
 
