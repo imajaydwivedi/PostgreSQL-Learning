@@ -1,6 +1,9 @@
 -- Use .pgpass file
 ~/.pgpass
+chmod 600 ~/.pgpass
 
+localhost:*:*:username:password
+ryzen9:*:*:username:password
 *:*:*:username:password
 
 # hostname:port:database:username:password
