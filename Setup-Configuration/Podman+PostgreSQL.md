@@ -11,6 +11,21 @@ sudo mkdir -p /var/lib/postgresql-podman/data
 # Run the postgres docker container using podman. Tunnel podman port 5432 to host port 5431.
 read -s -p "Enter Postgres Superuser Password: " postgres_superuser_password && export PGPASSWD="$postgres_superuser_password"
 podman run --name postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=${PGPASSWD} -p 5431:5432 -v /var/lib/postgresql-podman/data -d postgres
+
+# Verify container
+podman ps
+podman ps -a
+podman logs postgres
+
+# Connect to Bash Shell of Container
+podman exec -it postgres "bash"
+  # as root
+podman exec -u 0 -it postgres "bash"
+  # as postgres user
+podman exec -u postgres -it postgres "bash"
+
+psql -h localhost -U postgres
+psql
 ```
 
 ## Setup defaults for each connectivity
