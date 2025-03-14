@@ -80,3 +80,21 @@ docker cp <Container ID>:<Container path> <host path>
 # Copy files into a container
 docker cp <Host path> <Container ID>:<Container path>
 ```
+
+## If required, start container at system startup
+```
+# Generate a systemd Unit File for the Container
+podman generate systemd --name sqlserver --files --new
+
+# Move the Service File to systemd Directory
+mkdir -p ~/.config/systemd/user
+mv container-sqlserver.service ~/.config/systemd/user/
+
+# Enable and Start the Service
+systemctl --user enable container-sqlserver.service
+systemctl --user start container-sqlserver.service
+
+# If you want the user services to run on system boot, you might need to enable lingering:
+loginctl enable-linger $USER
+
+```
