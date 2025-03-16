@@ -24,6 +24,8 @@ podman run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}" \
     -v ${MSSQL_DIRECTORY}/data:/var/opt/mssql/data \
     -v ${MSSQL_DIRECTORY}/log:/var/opt/mssql/log \
     -v ${MSSQL_DIRECTORY}/secrets:/var/opt/mssql/secrets \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v /etc/timezone:/etc/timezone:ro \
     -d \
     mcr.microsoft.com/mssql/server:2022-latest
 
@@ -46,7 +48,11 @@ podman exec -u 0 -it sqlserver "bash"
 ## Connect to SQLServer
 ```
 # Connect to container as root user to make some changes
-podman exec -u 0 -it sqlserver "bash"
+podman exec -u root -it sqlserver "bash"
+
+# Make /opt/mssql-tools18/bin/ discoverable
+echo "export PATH=\$PATH:/opt/mssql-tools18/bin/:/opt/mssql/bin/" > /etc/profile.d/mssql.sh
+chmod +x /etc/profile.d/mssql.sh
 
 # Create links
 ln -s /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
@@ -98,3 +104,40 @@ systemctl --user start container-sqlserver.service
 loginctl enable-linger $USER
 
 ```
+
+## Restore Stackoverflow
+
+```
+# Create backup directory on Container
+podman exec -u root -it sqlserver bash
+mkdir -p /var/opt/mssql/backup/
+chmod +777 /var/opt/mssql/backup/
+
+# Copy backup file from host to container
+podman cp /stale-storage/Softwares/SQL_Server_Setups/SqlServer-Samples-Dbs/StackOverflow2013.bak cc8e9ab2a043:/var/opt/mssql/backup/
+
+# Connect to container sql server, and execute following restore command
+USE [master]
+RESTORE DATABASE [StackOverflow2013] FROM  DISK = N'/var/opt/mssql/backup/StackOverflow2013.bak'
+    WITH  FILE = 1,  MOVE N'StackOverflow2013_1' TO N'/var/opt/mssql/data/StackOverflow2013_1.mdf',
+    MOVE N'StackOverflow2013_2' TO N'/var/opt/mssql/data/StackOverflow2013_2.ndf',
+    MOVE N'StackOverflow2013_3' TO N'/var/opt/mssql/data/StackOverflow2013_3.ndf',
+    MOVE N'StackOverflow2013_4' TO N'/var/opt/mssql/data/StackOverflow2013_4.ndf',
+    MOVE N'StackOverflow2013_log' TO N'/var/opt/mssql/log/StackOverflow2013_log.ldf',
+    NOUNLOAD,  STATS = 5, REPLACE
+go
+```
+
+## Install SQL Server Agent
+```
+# connect to container shell
+exec -it -u root sqlserver bash
+
+# Enable SQL Agent
+sudo /opt/mssql/bin/mssql-conf set sqlagent.enabled true
+
+# Restart SQL Server container from host shell
+podman restart sqlserver
+```
+
+

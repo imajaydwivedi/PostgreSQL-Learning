@@ -47,6 +47,55 @@ The Extension Ecosystem
 /usr/lib/postgresql/16/lib/pgxs/src/makefiles/pgxs.mk
 
 
+Extension Components
+-----------------------------------------------------------
+
+-> The "control file" defines metadata of extension and is used to install, upgrade, and remove
+    the extension.
+
+-> The "script file" is a SQL file that contains statements to create database objects that are
+    required by the extension.
+
+-> The script file can also load other files that complete the extension, like a shared library.
+
+-> When asked to install an extension, the system inspects the control file to check if its already installed,
+    and if not, it installs the extension by executing the script file in "share directory".
+
+-> To find share directory of the cluster, use the following command -
+
+|------------$ pg_config --sharedir
+/usr/share/postgresql/16
+
+-> The extension must be selectively installed in every database that needs it.
+
+-> If an extension is need for all future databases, then it should be installed in the template database.
+
+
+The Control File
+--------------------------------------------------------------
+
+-> The control file is a text file where we specify "directives", which are instructions and metadata
+    to let PostgreSQL handle the extension installation.
+
+-> Each directive has a name and a value.
+
+-> The most common directives are as follows-
+
+# check/install contrib package
+dpkg -l | grep postgresql-contrib  # Debian/Ubuntu
+rpm -qa | grep postgresql-contrib  # RHEL/CentOS
+
+sudo apt install postgresql-contrib  # Debian/Ubuntu
+sudo apt install postgresql-plperl
+sudo yum install postgresql-contrib  # RHEL/CentOS
+
+
+-- check available extensions
+SELECT * FROM pg_available_extensions WHERE name LIKE '%contrib%';
+
+-- List installed extensions
+select * from pg_extension;
+
 
 
 
