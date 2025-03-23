@@ -1,9 +1,14 @@
 -- Use .pgpass file
 ~/.pgpass
+chmod 600 ~/.pgpass
 
-hostname:port:database:username:password
-# psql 'postgresql://username:password@host:port/database'
-# pg_restore --dbname='postgresql://username:password@host:port/database' [options] dumpfile
+localhost:*:*:username:password
+ryzen9:*:*:username:password
+*:*:*:username:password
+
+# hostname:port:database:username:password
+# psql 'postgresql://username:password@hostname:port/database'
+# pg_restore --dbname='postgresql://username:password@hostname:port/database' [options] dumpfile
 
 
 -- Configure .pg_service.conf (Optional for Simplified Connection)

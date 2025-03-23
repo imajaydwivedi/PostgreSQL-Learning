@@ -2,8 +2,8 @@
 -- https://github.com/SmartPostgres/Box-of-Tricks/blob/dev/checks/check_indexes.sql
 
 CREATE OR REPLACE FUNCTION check_indexes (
-    v_schema_name VARCHAR,
-    v_table_name VARCHAR,
+    v_schema_name VARCHAR default null,
+    v_table_name VARCHAR default null,
     v_warning_format VARCHAR default 'rows',
     v_debug_level INTEGER default 0
 )
@@ -19,6 +19,7 @@ RETURNS TABLE (
     dead_tuples INTEGER,
     last_autovacuum TIMESTAMPTZ,
     last_manual_nonfull_vacuum TIMESTAMPTZ,
+    fill_factor INTEGER,
     is_unique BOOLEAN,
     is_primary BOOLEAN,
     table_oid INTEGER,
@@ -36,12 +37,6 @@ DECLARE
     sql_to_execute TEXT;
 BEGIN
 
-
-	/* Time bomb because this function is early in development,
-		and we expect fast and furious changes in the first 6 months. */
-    IF CURRENT_DATE > '2025-02-01' THEN
-        RAISE EXCEPTION 'Error: this is an old version of check_indexes. Get the latest from SmartPostgres.com.';
-    END IF;
 
 	/* v_debug_level: 0 = no messages, 1 = critical messages, 2 = all messages */
 
@@ -71,7 +66,9 @@ BEGIN
 		last_analyze TIMESTAMPTZ,
 		last_autoanalyze TIMESTAMPTZ,
 		reloptions TEXT[],
-		drop_object_command VARCHAR
+		drop_object_command VARCHAR,
+		fill_factor INTEGER,
+		relfrozenxid XID
     );
 
 	CREATE TEMPORARY TABLE ci_indexes_warnings
@@ -96,7 +93,7 @@ BEGIN
     INSERT INTO ci_indexes (schema_name, table_name, index_name, index_type, index_definition, estimated_tuples, estimated_tuples_as_of, 
 		dead_tuples, is_unique, is_primary, table_oid, index_oid, relkind, reltoastrelid, 
 		last_manual_nonfull_vacuum, last_autovacuum, last_analyze, last_autoanalyze, reloptions,
-		n_mod_since_analyze, n_ins_since_vacuum)
+		n_mod_since_analyze, n_ins_since_vacuum, fill_factor, relfrozenxid)
     SELECT
         nm.nspname AS schema_name,
         c_tbl.relname AS table_name,
@@ -135,7 +132,13 @@ BEGIN
 				          AND c.table_name = 'pg_stat_user_tables'
 				          AND c.column_name = 'n_ins_since_vacuum')
 				THEN ' stat.n_ins_since_vacuum '
-				ELSE ' NULL ' END || '
+				ELSE ' NULL ' END || ',
+		COALESCE(
+            NULLIF((regexp_match(c_tbl.reloptions::text, ''fillfactor=(\d+)''))[1], '''')::int,
+            -- Default fillfactor for indexes and tables
+            100
+        ) AS fillfactor,
+		c_tbl.relfrozenxid
     FROM
         pg_catalog.pg_class c_tbl
     JOIN pg_catalog.pg_namespace nm ON
@@ -162,7 +165,7 @@ BEGIN
 
     sql_to_execute := '
     INSERT INTO ci_indexes (schema_name, table_name, index_name, index_type, index_definition, estimated_tuples, estimated_tuples_as_of, 
-							dead_tuples, is_unique, is_primary, table_oid, index_oid, relkind, reloptions)
+							dead_tuples, is_unique, is_primary, table_oid, index_oid, relkind, reloptions, relfrozenxid)
     SELECT
         c_tbl.schema_name AS schema_name,
         c_tbl.table_name AS table_name,
@@ -177,7 +180,8 @@ BEGIN
         c_tbl.table_oid AS table_oid,
         c_toast_tbl.oid AS index_oid,
         c_toast_tbl.relkind AS relkind,
-		c_tbl.reloptions
+		c_tbl.reloptions,
+		c_toast_tbl.relfrozenxid
     FROM
         ci_indexes c_tbl
     JOIN 
@@ -199,8 +203,8 @@ BEGIN
 
     sql_to_execute := '
     INSERT INTO ci_indexes (schema_name, table_name, index_name, index_type, index_definition, estimated_tuples, estimated_tuples_as_of, dead_tuples, 
-		is_unique, is_primary, table_oid, index_oid, relkind, reltoastrelid, 
-		last_manual_nonfull_vacuum, last_autovacuum, last_analyze, last_autoanalyze, reloptions, n_mod_since_analyze, n_ins_since_vacuum)
+		is_unique, is_primary, table_oid, index_oid, relkind, reltoastrelid, last_manual_nonfull_vacuum, last_autovacuum, last_analyze, 
+		last_autoanalyze, reloptions, n_mod_since_analyze, n_ins_since_vacuum, fill_factor, relfrozenxid)
     SELECT
         nm.nspname AS schema_name,
         c_tbl.relname AS table_name,
@@ -239,7 +243,13 @@ BEGIN
 				          AND c.table_name = 'pg_stat_user_tables'
 				          AND c.column_name = 'n_ins_since_vacuum')
 				THEN ' stat.n_ins_since_vacuum '
-				ELSE ' NULL ' END || '
+				ELSE ' NULL ' END || ',
+		COALESCE(
+            NULLIF((regexp_match(c_tbl.reloptions::text, ''fillfactor=(\d+)''))[1], '''')::int,
+            -- Default fillfactor for indexes and tables
+            100
+        ) AS fillfactor,
+		c_tbl.relfrozenxid
     FROM pg_catalog.pg_inherits inh 
     JOIN pg_catalog.pg_class c_tbl ON inh.inhrelid = c_tbl.oid
     JOIN pg_catalog.pg_namespace nm ON
@@ -266,7 +276,8 @@ BEGIN
 	END IF;
     sql_to_execute := '
     INSERT INTO ci_indexes (schema_name, table_name, index_name, index_type, estimated_tuples, estimated_tuples_as_of, 
-		dead_tuples, last_autovacuum, last_manual_nonfull_vacuum, is_unique, is_primary, table_oid, index_oid, relkind, reloptions)
+		dead_tuples, last_autovacuum, last_manual_nonfull_vacuum, is_unique, is_primary, table_oid, index_oid, relkind, reloptions,
+		fill_factor)
     SELECT
         c_tbl.schema_name AS schema_name,
         c_tbl.table_name AS table_name,
@@ -282,7 +293,12 @@ BEGIN
         c_tbl.table_oid AS table_oid,
         c_ix.oid AS index_oid,
         c_ix.relkind,
-		c_ix.reloptions
+		c_ix.reloptions,
+		COALESCE(
+            NULLIF((regexp_match(c_ix.reloptions::text, ''fillfactor=(\d+)''))[1], '''')::int,
+            -- Default fillfactor for indexes and tables
+            90
+        ) AS fillfactor
     FROM
         ci_indexes c_tbl
     JOIN 
@@ -396,10 +412,47 @@ BEGIN
 			|| ' heap_blks_scanned: ' || prog.heap_blks_scanned
 			|| ' index_rebuild_count: ' || prog.index_rebuild_count
 			 AS warning_details,
-	'https://smartpostgres.com/problems/vacuum_running_now' AS url
+	'https://smartpostgres.com/problems/vacuum-running-now' AS url
 	FROM ci_indexes i
 		JOIN pg_catalog.pg_stat_progress_cluster prog
 			on i.table_oid = prog.relid;
+
+
+	--10: Transaction ID Wraparound Risk
+	IF v_debug_level >= 2 THEN
+		RAISE NOTICE '10: Transaction ID Wraparound Risk';
+	END IF;
+
+	WITH table_freeze_settings AS (
+	    SELECT 
+	        c.table_oid, c.index_oid,
+	        greatest(age(c.relfrozenxid), age(t.relfrozenxid)) AS greatest_age,
+	        COALESCE(freeze_params.freeze_max_age, s.setting::int) AS freeze_max_age,
+			s.setting::int AS server_default_freeze_max_age
+	    FROM ci_indexes c
+	    LEFT JOIN ci_indexes t ON c.reltoastrelid = t.table_oid
+	    JOIN pg_settings s ON s.name = 'autovacuum_freeze_max_age'
+	    LEFT JOIN LATERAL (
+	        SELECT (regexp_match(unnest(c.reloptions), 'autovacuum_freeze_max_age=(\d+)'))[1]::int AS freeze_max_age
+	        WHERE EXISTS (SELECT 1 FROM unnest(c.reloptions) opt WHERE opt LIKE 'autovacuum_freeze_max_age=%')
+	    ) freeze_params ON TRUE
+	    WHERE c.relkind IN ('r', 'm')
+	)
+	INSERT INTO ci_indexes_warnings (table_oid, index_oid, priority, warning_summary, warning_details, url)
+	SELECT tfs.table_oid, tfs.index_oid, 10, 
+		'Transaction ID Wraparound Risk' AS warning_summary,
+		'Autovacuum was supposed to kick in by now to prevent transaction ID wraparounds, but it has not. '
+			|| ' Transaction age (int, qty of transactions, not date) from relfrozenxid: ' || tfs.greatest_age::varchar
+			|| ' autovacuum_freeze_max_age (also int, qty of transactions) '
+			|| CASE WHEN freeze_max_age = server_default_freeze_max_age THEN ' from server default: '
+				ELSE ' set by table-level override in reloptions: ' END
+			|| tfs.freeze_max_age::varchar
+			 AS warning_details,
+	'https://smartpostgres.com/problems/transaction-id-wraparound' AS url
+	FROM table_freeze_settings tfs
+	WHERE greatest_age >= freeze_max_age;
+
+
 
 
 	--50: Autovacuum Not Keeping Up
@@ -449,12 +502,12 @@ BEGIN
 		'Vacuum threshold for this object: '
 			|| (tvs.autovacuum_vacuum_threshold + (tvs.autovacuum_vacuum_scale_factor * tvs.estimated_tuples))::varchar
 			|| ' tuples.' as warning_details,
-		'https://smartpostgres.com/problems/autovacuum_not_keeping_up' AS url
+		'https://smartpostgres.com/problems/autovacuum-not-keeping-up' AS url
 	FROM 
 	    table_vacuum_settings tvs
 	WHERE 
 	    -- Show tables where dead tuples exceed the effective autovacuum threshold
-	    (tvs.n_dead_tup * 1.1) > (tvs.autovacuum_vacuum_threshold + (tvs.autovacuum_vacuum_scale_factor * tvs.estimated_tuples))
+	    tvs.n_dead_tup > (tvs.autovacuum_vacuum_threshold + (tvs.autovacuum_vacuum_scale_factor * tvs.estimated_tuples)) * 1.1
 		AND tvs.autovacuum_enabled <> false;
 
 
@@ -477,7 +530,7 @@ BEGIN
 			|| i.n_mod_since_analyze::varchar || ' mod_since_analyze.' 
 			|| ' last_analyze on ' || COALESCE(i.last_analyze::date::varchar, '(never)')
 			|| '. last_autoanalyze on ' || COALESCE(i.last_autoanalyze::date::varchar, '(never)') AS warning_details,
-	'https://smartpostgres.com/problems/outdated_statistics' AS url
+	'https://smartpostgres.com/problems/outdated-statistics' AS url
 	FROM ci_indexes i
     WHERE ABS(i.estimated_tuples::numeric) * 0.1 < GREATEST(i.n_ins_since_vacuum, i.n_mod_since_analyze);
 
@@ -529,7 +582,7 @@ BEGIN
 					THEN ' || '' indexes_processed: '' || prog.indexes_processed '
 					ELSE '' END
 			|| ' AS warning_details,
-	''https://smartpostgres.com/problems/vacuum_running_now'' AS url
+	''https://smartpostgres.com/problems/vacuum-running-now'' AS url
 	FROM ci_indexes i
 		JOIN pg_catalog.pg_stat_progress_vacuum prog
 			on i.table_oid = prog.relid;';
@@ -555,7 +608,7 @@ BEGIN
 	SELECT i.table_oid, i.index_oid, 200, 
 		'Autovacuum Settings Specified' AS warning_summary,
 		'See the reloptions column for details. Someone set the settings for this specific object.' AS warning_details,
-	'https://smartpostgres.com/problems/autovacuum_settings_specified' AS url
+	'https://smartpostgres.com/problems/autovacuum-settings-specified' AS url
 	FROM ci_indexes i
     WHERE array_to_string(i.reloptions, ', ') like '%autovacuum%';
 
@@ -572,6 +625,7 @@ BEGIN
 		ci.index_type, ci.index_definition, ci.size_kb, ci.estimated_tuples,
 		ci.estimated_tuples_as_of, 
 		ci.dead_tuples, ci.last_autovacuum, ci.last_manual_nonfull_vacuum,
+		ci.fill_factor,
 		ci.is_unique, ci.is_primary,
 		ci.table_oid, ci.index_oid,
 		w.priority, w.warning_summary, w.warning_details, w.url,
