@@ -14,7 +14,7 @@ client_min_messages = 'debug1'
 
 log_min_duration_statement = '5s'
 log_min_duration_sample = '2s'
-log_min_sample_rate = 0.1
+log_statement_sample_rate = 0.1
 log_transactions_sample_rate = 0.1
 
 */
