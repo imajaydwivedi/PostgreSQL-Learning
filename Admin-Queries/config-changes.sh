@@ -27,7 +27,7 @@ auto_explain.log_timing = 'on'
 auto_explain.log_settings = 'on'
 shared_preload_libraries = 'pg_stat_statements'    # (change requires restart)
 
-logging_collection = on
+logging_collector = on
 log_destination = 'stderr'
 log_directory = 'log'
 #log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
@@ -41,7 +41,7 @@ client_min_messages = 'warning'
 log_min_duration_statement = '5s'
 log_min_duration_sample = '2s'
 log_statement_sample_rate = 0.1
-log_transactions_sample_rate = 0.1
+log_transaction_sample_rate = 0.1
 
 log_temp_files = '20MB'
 
