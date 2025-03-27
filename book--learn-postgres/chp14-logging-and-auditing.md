@@ -80,17 +80,43 @@ set pgaudit.log to 'write, function';
 pgaudit.log_level = 'INFO'
 
 # Configure additional query parameters
-pgaudit.log_parameter = ''
+pgaudit.log = 'write, ddl'
 
 # Configure pgaudit by Object
-pgaudit.role = ''
+pgaudit.role = 'auditor'
 
 ```
 
 # Auditing by session
 ```
+# Possible value for pgaudit.log -> ALL, NONE, READ, WRITE, ROLE, DDL, FUNCTION, MISC, MISC_SET
+
 -- set log at session level (only superuser)
-set pgaudit.log to 'all';
+set pgaudit.log to 'write, ddl';
+
+select count(*) from users;
+
+-- Check how log_statement extension logs it vs how PgAudit logs the information for dynamic sql
+DO $$ BEGIN
+EXECUTE 'TRUNCATE TABLE ' || 'public.users_new cascade';
+END $$;
+
+```
 
 
+# Auditing by Role
+```
+-- create a role to template permissions to audit
+create role auditor with nologin;
 
+-- provide template permissions to audit
+grant insert,update,select on users_new to auditor;
+grant update on users to auditor;
+
+-- start auditing based on role
+set pgaudit.role to auditor;
+
+-- In postgresql.conf
+pgaudit.role = 'auditor'
+
+```
