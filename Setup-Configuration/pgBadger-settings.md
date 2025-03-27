@@ -38,6 +38,7 @@ ls -l /var/log/postgresql/
     -rw------- 1 postgres postgres   1766 Mar 26 07:10 postgresql-Wed.log
 
 pgbadger -o /var/lib/pgbadger/data/html/first_report.html /var/log/postgresql/postgresql*
+pgbadger -o /var/lib/pgbadger/data/html/first_report.html /var/lib/postgresql/16/main/log/postgresql*
 ```
 
 # Incremental logs import in pgbadger from remote host pgprod
