@@ -6,7 +6,9 @@ create table audit_logs (
     data_row jsonb not null,
     operation_type varchar(20) not null,
     operation_by varchar(125) not null default current_role,
-    operation_time timestamp not null default CURRENT_TIMESTAMP
+    operation_time timestamp not null default CURRENT_TIMESTAMP,
+    client_app_name TEXT,
+    client_host TEXT
 );
 
 create index audit_logs__operation_time on audit_logs (operation_time);
@@ -21,6 +23,8 @@ RETURNS TRIGGER AS $$
 DECLARE
     pk_column_name TEXT := 'id';  -- Default PK column name
     pk_column_value TEXT := NULL; -- Default PK column value
+    client_app_name TEXT := current_setting('application_name', true);
+    client_host TEXT := inet_client_addr()::TEXT;
 BEGIN
     -- Try to fetch the actual primary key column name
     SELECT a.attname INTO pk_column_name
@@ -55,19 +59,15 @@ BEGIN
     -- Insert audit record
     IF TG_OP IN ('UPDATE','DELETE') THEN
         INSERT INTO audit_logs (
-            table_name, table_unique_key_name, table_unique_key_value, 
-            data_row, operation_type, operation_by, operation_time
+            table_name, table_unique_key_name, table_unique_key_value, data_row, operation_type, operation_by, operation_time, client_app_name, client_host
         ) VALUES (
-            TG_TABLE_NAME, pk_column_name, pk_column_value,
-            row_to_json(OLD), TG_OP, current_role, CURRENT_TIMESTAMP
+            TG_TABLE_NAME, pk_column_name, pk_column_value, row_to_json(OLD), TG_OP, current_role, CURRENT_TIMESTAMP, client_app_name, client_host
         );
     ELSE
         INSERT INTO audit_logs (
-            table_name, table_unique_key_name, table_unique_key_value, 
-            data_row, operation_type, operation_by, operation_time
+            table_name, table_unique_key_name, table_unique_key_value, data_row, operation_type, operation_by, operation_time, client_app_name, client_host
         ) VALUES (
-            TG_TABLE_NAME, pk_column_name, pk_column_value,
-            row_to_json(NEW), TG_OP, current_role, CURRENT_TIMESTAMP
+            TG_TABLE_NAME, pk_column_name, pk_column_value, row_to_json(NEW), TG_OP, current_role, CURRENT_TIMESTAMP, client_app_name, client_host
         );
     END IF;
 
@@ -90,7 +90,7 @@ select * from audit_logs;
 -- 1,2,3,4,5,6,
 update users_new set location = 'Rewa' where id = 1;
 update users_new set location = 'Hyderabad' where id = 2;
-delete from users_new where id = 2;
+delete from users_new where id = 3;
 
 /*
 prepare update_query(int,text) as update users_new set location = $2 where id = $1;
