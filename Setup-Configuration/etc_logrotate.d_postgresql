@@ -1,10 +1,7 @@
 /var/lib/postgresql/16/main/log/*.log {
     size 500M
-    daily
     rotate 5
     copytruncate
-    #compress
-    #delaycompress
     notifempty
     missingok
     create 0640 postgres postgres
@@ -26,3 +23,4 @@
 }
 
 # sudo logrotate -f /etc/logrotate.d/postgresql
+# Create a cron job /etc/cron.d/logrotate_postgresql
