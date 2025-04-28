@@ -1,0 +1,12 @@
+---
+postgresql_version: "16"
+
+
+
+# Application settings
+app_db_name: facebook
+app_role_rw: facebook_rw
+app_role_ro: facebook_ro
+
+
+
