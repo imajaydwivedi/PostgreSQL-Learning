@@ -1,0 +1,24 @@
+---
+- name: "Begin {{ role_name }}/custom/pre_tasks.yml"
+  debug:
+    msg: "Begin {{ role_name }}/custom/pre_tasks.yml"
+
+- name: Update package cache (RedHat)
+  ansible.builtin.dnf:
+    update_cache: yes
+  # when: ansible_os_family == "RedHat"
+
+- name: Install related packages
+  ansible.builtin.dnf:
+    name:
+      - python3-psycopg2
+      - curl
+      - gnupg2
+      - wget
+      - ca-certificates
+    state: present
+  # when: ansible_os_family == "Debian"
+
+- name: "End {{ role_name }}/custom/pre_tasks.yml"
+  debug:
+    msg: "End {{ role_name }}/custom/pre_tasks.yml"
