@@ -13,21 +13,67 @@
 #     repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
 #     state: present
 
+# - name: Import PostgreSQL GPG key
+#   ansible.builtin.rpm_key:
+#     state: present
+#     key: https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG
+
+- name: Install the PostgreSQL repository RPM
+  ansible.builtin.dnf:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+    disable_gpg_check: yes
+
+- name: Disable the built-in PostgreSQL module
+  ansible.builtin.dnf:
+    name: postgresql
+    state: absent
+
+# - name: Disable the built-in PostgreSQL module
+#   command: dnf -qy module disable postgresql
+#   args:
+#     warn: false
+
+- name: "Install PostgreSQL {{ postgresql_version }}"
+  ansible.builtin.dnf:
+    name:
+      - postgresql{{ postgresql_version }}-server
+      # - postgresql-client
+      # - postgresql-devel
+      - postgresql{{ postgresql_version }}-contrib
+    state: present
+
+- name: Check PGDATA directory
+  stat:
+    path: "{{ pg_data_dir }}"
+  register: pg_data_dir_stat
+  changed_when: false
+
+- name: Initialize PostgreSQL database
+  command: /usr/pgsql-{{ postgresql_version }}/bin/postgresql-{{ postgresql_version }}-setup initdb
+  register: pg_init
+  when: pg_data_dir_stat.stat.exists is false
+
+- name: Debug variable pg_init
+  debug:
+    var: pg_init
+  when: pg_init is defined
+
 - name: Ensure PostgreSQL service is started and enabled
   service:
-    name: postgresql
+    name: postgresql-{{ postgresql_version }}
     state: started
     enabled: yes
 
-- name: Check PostgreSQL status
-  command: systemctl status postgresql
-  register: pg_status
-  changed_when: false
-  ignore_errors: yes
+# - name: Check PostgreSQL status
+#   command: systemctl status postgresql
+#   register: pg_status
+#   changed_when: false
+#   ignore_errors: yes
 
-- name: Show PostgreSQL status
-  debug:
-    var: pg_status.stdout_lines
+# - name: Show PostgreSQL status
+#   debug:
+#     var: pg_status.stdout_lines
 
 - name: "End {{ role_name }}/tasks/custom/postgres_installation.yml"
   debug:

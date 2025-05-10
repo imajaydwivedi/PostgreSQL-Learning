@@ -1,6 +1,6 @@
 ---
-pg_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
-pg_conf_path: "/etc/postgresql/{{ postgresql_version }}/main"
+pg_data_dir: "/var/lib/pgsql/{{ postgresql_version }}/data"
+pg_conf_path: "/var/lib/pgsql/{{ postgresql_version }}/data"
 pg_port: 5432
 
 # pg_superuser_pwd: "{{ lookup('env', 'PG_SUPERUSER_PWD') }}"

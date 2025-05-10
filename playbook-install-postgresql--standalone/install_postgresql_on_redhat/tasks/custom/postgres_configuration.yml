@@ -64,18 +64,19 @@
   become_user: root
 
 - name: Configure UFW to allow PostgreSQL connections
-  ufw:
-    rule: allow
-    port: "{{ pg_port }}"
-    proto: tcp
+  ansible.posix.firewalld:
+    port: "{{ pg_port }}/tcp"
+    immediate: yes
+    permanent: yes
+    state: enabled
 
 - name: Ensure PostgreSQL is restarted
   service:
-    name: postgresql
+    name: postgresql-{{ postgresql_version }}
     state: restarted
 
 - name: Check PostgreSQL status
-  command: systemctl status postgresql
+  command: systemctl status postgresql-{{ postgresql_version }}
   register: pg_status
   changed_when: false
   ignore_errors: yes

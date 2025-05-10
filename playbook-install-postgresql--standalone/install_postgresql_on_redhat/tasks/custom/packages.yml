@@ -3,27 +3,19 @@
   debug:
     msg: "Begin {{ role_name }}/custom/pre_tasks.yml"
 
-- name: Update apt cache
-  ansible.builtin.package:
+- name: Update package cache (RedHat)
+  ansible.builtin.dnf:
     update_cache: yes
-  when: ansible_os_family == "Debian"
+  # when: ansible_os_family == "RedHat"
 
-- name: Install PostgreSQL and related packages
-  ansible.builtin.package:
+- name: Install related packages
+  ansible.builtin.dnf:
     name:
-      - postgresql-common
       - python3-psycopg2
-      - libpq-dev
       - curl
-      - ufw
       - gnupg2
       - wget
-      - lsb-release
       - ca-certificates
-      - postgresql-server-dev-{{ postgresql_version }}
-      - postgresql-client-{{ postgresql_version }}
-      - postgresql-{{ postgresql_version }}
-      - postgresql-contrib-{{ postgresql_version }}
     state: present
   # when: ansible_os_family == "Debian"
 
