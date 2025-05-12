@@ -16,6 +16,7 @@
       - gnupg2
       - wget
       - ca-certificates
+      - pgbackrest
     state: present
   # when: ansible_os_family == "Debian"
 
