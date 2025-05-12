@@ -1,5 +1,6 @@
 # Disaster Recovery with pgbackrest
 ### [https://pgbackrest.org]
+- [https://pgbackrest.org/user-guide.html#installation](https://pgbackrest.org/user-guide.html#installation)
 
 ## Enable password less ssh between pgbackrest host and postgresql host
 ```
@@ -42,7 +43,7 @@ sudo dnf install -y pgbackrest
 - [https://pgbackrest.org/user-guide.html#gcs-support](https://pgbackrest.org/user-guide.html#gcs-support)
 
 ```
-sudo vim /etc/pgbackrest.conf
+sudo vim /etc/pgbackrest/pgbackrest.conf
 
 [global]
 start-fast=y
