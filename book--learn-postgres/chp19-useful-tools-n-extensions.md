@@ -275,3 +275,38 @@ RESET enable_seqscan;
 
 ```
 
+# Migrating from SQLServer to PostgreSQL using pgloader
+- [https://pgloader.io/](https://pgloader.io/)
+- [https://www.youtube.com/watch?v=YKJub0zVztE](https://www.youtube.com/watch?v=YKJub0zVztE)
+- [https://github.com/dalibo/sqlserver2pgsql](https://github.com/dalibo/sqlserver2pgsql)
+
+```
+# Command to execute
+pgloader source_con_string destination_con_string
+
+# A typical connection string
+db://user:pass@host:port/dbname
+
+db -> mssql, mysql, pgsql
+
+# Example 01
+
+pgloader \
+mssql://SQLQueryStress:SQLQueryStressPassword@sqlmonitor:1433/StackOverflow2013 \
+pgsql://postgres@localhost/stackoverflow2013
+```
+
+# Migrating from SQLServer to PostgreSQL using sqlserver2pgsql
+```
+1. Convert schema manually or using tools like sqlserver2pgsql.
+2. Export data from SQL Server using bcp:
+
+bcp dbname.dbo.table out table.csv -c -t',' -S sqlserver -U user -P password
+
+3. Import into PostgreSQL using COPY:
+
+COPY tablename FROM '/path/to/table.csv' WITH CSV;
+```
+
+
+

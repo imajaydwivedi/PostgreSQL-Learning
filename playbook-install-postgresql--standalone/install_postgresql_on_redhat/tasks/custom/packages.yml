@@ -17,6 +17,7 @@
       - wget
       - ca-certificates
       - pgbackrest
+      - pgloader
     state: present
   # when: ansible_os_family == "Debian"
 
