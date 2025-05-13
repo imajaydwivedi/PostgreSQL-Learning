@@ -278,6 +278,7 @@ RESET enable_seqscan;
 # Migrating from SQLServer to PostgreSQL using pgloader
 - [https://pgloader.io/](https://pgloader.io/)
 - [https://www.youtube.com/watch?v=YKJub0zVztE](https://www.youtube.com/watch?v=YKJub0zVztE)
+- [https://www.youtube.com/watch?v=oQgCNJv9Prw](https://www.youtube.com/watch?v=oQgCNJv9Prw)
 - [https://github.com/dalibo/sqlserver2pgsql](https://github.com/dalibo/sqlserver2pgsql)
 
 ```
