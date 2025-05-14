@@ -86,6 +86,8 @@ sudo firewall-cmd --permanent --add-port=8302/tcp
 sudo firewall-cmd --permanent --add-port=8400/tcp
 sudo firewall-cmd --permanent --add-port=8500/tcp
 sudo firewall-cmd --permanent --add-port=8600/tcp
+sudo firewall-cmd --permanent --add-port=80/tcp
+sudo firewall-cmd --permanent --add-port=443/tcp
 
 # UDP ports
 sudo firewall-cmd --permanent --add-port=8301/udp
@@ -134,6 +136,35 @@ curl http://127.0.0.1:8500/v1/status/leader
 # Open website http://pg-consul-rhel:8500/ui/ from ryzen9 machine
 Use CONSUL_HTTP_TOKEN for login
 
+echo $CONSUL_HTTP_TOKEN
+
+```
+
+## Configure NGinx as a Reverse Proxy
+```
+
+apt-get install nginx -y
+rm -rf /etc/nginx/sites-enabled/default
+
+sudo nano /etc/nginx/sites-available/consul.conf
+
+server {
+listen 80 ;
+server_name 192.168.100.41;
+root /var/lib/consul;
+location / {
+proxy_pass http://127.0.0.1:8500;
+proxy_set_header   X-Real-IP $remote_addr;
+proxy_set_header   Host      $http_host;
+}
+}
+
+sudo mkdir /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/consul.conf /etc/nginx/sites-enabled/
+
+sudo nginx -t
+
+sudo systemctl restart nginx
 ```
 
 
