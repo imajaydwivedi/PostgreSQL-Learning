@@ -130,6 +130,10 @@ consul members -detailed
 
 # Verify leader
 curl http://127.0.0.1:8500/v1/status/leader
+
+# Open website http://pg-consul-rhel:8500/ui/ from ryzen9 machine
+Use CONSUL_HTTP_TOKEN for login
+
 ```
 
 
